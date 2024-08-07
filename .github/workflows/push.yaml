@@ -24,7 +24,7 @@ jobs:
       - uses: "actions/checkout@v4"
       - uses: "c032/gha-docker@main"
         with:
-          image-name: "${{ github.repository }}"
+          image-name: "${{ github.repository }}-interactions-api"
           registry-username: "${{ github.actor }}"
           registry-password: "${{ secrets.GITHUB_TOKEN }}"
           dockerfile: "docker/interactions-api.dockerfile"
