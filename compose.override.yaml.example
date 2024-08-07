@@ -1,0 +1,11 @@
+services:
+  interactions-api:
+    environment:
+      - "DISCORD_APPLICATION_ID=PLACEHOLDER"
+      - "SKIP_DISCORD_REQUEST_VALIDATION=1"
+
+    # NOTE: On production, if using Docker Swarm, these should be defined
+    # under `secrets` instead of under `volumes`.
+    volumes:
+      - "/data/secrets/ffxiv-world-status-discord/discord-public-key.txt:/run/secrets/discord_public_key:ro"
+      - "/data/secrets/ffxiv-world-status-discord/discord-token.txt:/run/secrets/discord_token:ro"

@@ -1,0 +1,15 @@
+name: "ffxiv_world_status_discord"
+
+services:
+  interactions-api:
+    build:
+      context: "."
+      dockerfile: "./docker/interactions-api.dockerfile"
+    environment:
+      - "FFXIV_API_TOKEN=correct horse battery staple"
+      - "FFXIV_API_URL=https://ffxiv.c032.dev/"
+      - "INTERACTIONS_API_LISTEN_ADDRESS=0.0.0.0:8000"
+
+      # Defined in `compose.override.yaml`.
+      - "DISCORD_PUBLIC_KEY_FILE=/usr/local/etc/ffxiv-world-status-discord/discord_public_key"
+      - "DISCORD_TOKEN_FILE=/usr/local/etc/ffxiv-world-status-discord/discord_token"
