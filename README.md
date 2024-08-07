@@ -1,5 +1,7 @@
 # `ffxiv-world-status-discord`
 
+Discord bot to check status of FFXIV worlds.
+
 ## Development
 
 ## Configuration
