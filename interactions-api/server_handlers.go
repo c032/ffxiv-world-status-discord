@@ -2,10 +2,14 @@ package interactionsapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	logger "github.com/c032/go-logger"
+
+	"github.com/c032/ffxiv-world-status-discord/ffxivapi"
 )
 
 func (s *Server) handleInteractionPing(interaction *discordgo.Interaction, w http.ResponseWriter, req *http.Request) {
@@ -28,14 +32,98 @@ func (s *Server) handleCommandPing(data discordgo.ApplicationCommandInteractionD
 }
 
 func (s *Server) handleCommandStatus(data discordgo.ApplicationCommandInteractionData, w http.ResponseWriter) {
-	resp := &discordgo.InteractionResponse{
+	log := s.logger()
+
+	var (
+		maintenanceWorlds                  []ffxivapi.World
+		characterCreationUnavailableWorlds []ffxivapi.World
+
+		err error
+		wr  *ffxivapi.WorldsResponse
+	)
+
+	wr, err = s.API.Worlds()
+	if err != nil {
+		log.Error(err.Error())
+
+		s.respondJSON(200, w, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "Could not check availability.",
+			},
+		})
+
+		return
+	}
+
+	for _, world := range wr.Worlds {
+		if world.IsMaintenance {
+			maintenanceWorlds = append(maintenanceWorlds, world)
+		}
+		if !world.CanCreateNewCharacters {
+			characterCreationUnavailableWorlds = append(characterCreationUnavailableWorlds, world)
+		}
+	}
+
+	var fields []*discordgo.MessageEmbedField
+
+	if len(maintenanceWorlds) > 0 {
+		var names []string
+
+		for _, w := range maintenanceWorlds {
+			names = append(names, fmt.Sprintf("%s (%s)", w.Name, w.Group))
+		}
+
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Name:   "Maintenance",
+			Value:  strings.Join(names, "\n"),
+			Inline: true,
+		})
+	}
+
+	if len(characterCreationUnavailableWorlds) > 0 {
+		var names []string
+
+		for _, w := range characterCreationUnavailableWorlds {
+			names = append(names, fmt.Sprintf("%s (%s)", w.Name, w.Group))
+		}
+
+		fields = append(fields, &discordgo.MessageEmbedField{
+			Name:   "Character creation unavailable",
+			Value:  strings.Join(names, "\n"),
+			Inline: true,
+		})
+	}
+
+	var content string
+	var embeds []*discordgo.MessageEmbed
+
+	if len(fields) == 0 {
+		content = "Everything looks good."
+	} else {
+		embed := &discordgo.MessageEmbed{
+			Title:  "FFXIV World Status",
+			Fields: fields,
+		}
+
+		if s.DiscordThumbnailURL != "" {
+			embed.Thumbnail = &discordgo.MessageEmbedThumbnail{
+				URL: s.DiscordThumbnailURL,
+			}
+		}
+
+		embeds = append(embeds, embed)
+	}
+
+	interactionResponse := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: "Temporarily unavailable, this feature is currently not implemented.",
+			Embeds:  embeds,
+			Content: content,
 		},
 	}
 
-	s.respondJSON(200, w, resp)
+	s.respondJSON(200, w, interactionResponse)
 }
 
 func (s *Server) handleInteractionApplicationCommand(interaction *discordgo.Interaction, w http.ResponseWriter, req *http.Request) {

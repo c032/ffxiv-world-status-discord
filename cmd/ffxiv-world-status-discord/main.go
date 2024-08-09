@@ -74,6 +74,7 @@ func actualMain() int {
 	discordApplicationID := mustReadRequiredEnvironmentVariable("DISCORD_APPLICATION_ID")
 	addr := mustReadRequiredEnvironmentVariable("INTERACTIONS_API_LISTEN_ADDRESS")
 	skipDiscordRequestValidation := os.Getenv("SKIP_DISCORD_REQUEST_VALIDATION") == "1"
+	discordThumbnailURL := os.Getenv("DISCORD_THUMBNAIL_URL")
 
 	s := &iapi.Server{
 		Logger: log,
@@ -81,6 +82,7 @@ func actualMain() int {
 
 		DiscordApplicationID:         discordApplicationID,
 		DiscordPublicKey:             discordPublicKey,
+		DiscordThumbnailURL:          discordThumbnailURL,
 		DiscordToken:                 discordToken,
 		SkipDiscordRequestValidation: skipDiscordRequestValidation,
 	}

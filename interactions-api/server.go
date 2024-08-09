@@ -23,8 +23,9 @@ type Server struct {
 	chiRouter *chi.Mux
 
 	DiscordApplicationID string
-	DiscordToken         string
 	DiscordPublicKey     ed25519.PublicKey
+	DiscordThumbnailURL  string
+	DiscordToken         string
 
 	SkipDiscordRequestValidation bool
 
