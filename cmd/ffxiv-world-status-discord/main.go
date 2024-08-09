@@ -16,6 +16,7 @@ import (
 
 	logger "github.com/c032/go-logger"
 
+	ffxivapi "github.com/c032/ffxiv-world-status-discord/ffxivapi"
 	iapi "github.com/c032/ffxiv-world-status-discord/interactions-api"
 )
 
@@ -51,13 +52,13 @@ func actualMain() int {
 	var (
 		err error
 
-		ac iapi.APIClient
+		ac ffxivapi.Client
 	)
 
 	apiBaseURL := mustReadRequiredEnvironmentVariable("FFXIV_API_URL")
 	apiToken := mustReadRequiredEnvironmentVariable("FFXIV_API_TOKEN")
 
-	ac, err = iapi.NewAPIClient(iapi.APIOptions{
+	ac, err = ffxivapi.NewClient(ffxivapi.ClientOptions{
 		BaseURL: apiBaseURL,
 		Token:   apiToken,
 	})

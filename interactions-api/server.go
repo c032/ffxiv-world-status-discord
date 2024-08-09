@@ -10,13 +10,15 @@ import (
 	"github.com/bwmarrin/discordgo"
 	logger "github.com/c032/go-logger"
 	chi "github.com/go-chi/chi/v5"
+
+	"github.com/c032/ffxiv-world-status-discord/ffxivapi"
 )
 
 type Server struct {
 	loggerMutex sync.Mutex
 	Logger      logger.Logger
 
-	API APIClient
+	API ffxivapi.Client
 
 	chiRouter *chi.Mux
 

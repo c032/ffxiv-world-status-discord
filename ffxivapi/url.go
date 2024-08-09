@@ -1,4 +1,4 @@
-package interactionsapi
+package ffxivapi
 
 import (
 	"net/url"

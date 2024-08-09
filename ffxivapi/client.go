@@ -1,4 +1,4 @@
-package interactionsapi
+package ffxivapi
 
 import (
 	"encoding/json"
@@ -47,12 +47,12 @@ func request[T any](ac *apiClient, method string, path string, body []byte) (*T,
 	return &result, nil
 }
 
-type APIOptions struct {
+type ClientOptions struct {
 	BaseURL string
 	Token   string
 }
 
-func NewAPIClient(options APIOptions) (APIClient, error) {
+func NewClient(options ClientOptions) (Client, error) {
 	c, err := chttp.NewClient(httpUserAgent)
 	if err != nil {
 		return nil, fmt.Errorf("could not create API client: %w", err)
@@ -72,11 +72,11 @@ func NewAPIClient(options APIOptions) (APIClient, error) {
 	return ac, nil
 }
 
-type APIClient interface {
-	Worlds() (*APIWorldsResponse, error)
+type Client interface {
+	Worlds() (*WorldsResponse, error)
 }
 
-var _ APIClient = (*apiClient)(nil)
+var _ Client = (*apiClient)(nil)
 
 type apiClient struct {
 	c chttp.Client
@@ -107,7 +107,7 @@ func (ac *apiClient) init() error {
 		ac.baseURL = baseURL
 	}
 
-	ac.worldsURL, err = ac.resolve("/worlds")
+	ac.worldsURL, err = ac.resolve("worlds")
 	if err != nil {
 		return fmt.Errorf("could not initialize worlds URL: %w", err)
 	}
@@ -133,28 +133,11 @@ func (ac *apiClient) resolve(urlStr string) (*url.URL, error) {
 	return parsedURL, nil
 }
 
-func (ac *apiClient) Worlds() (*APIWorldsResponse, error) {
-	worldsResponse, err := request[APIWorldsResponse](ac, http.MethodGet, ac.worldsURL.String(), nil)
+func (ac *apiClient) Worlds() (*WorldsResponse, error) {
+	worldsResponse, err := request[WorldsResponse](ac, http.MethodGet, ac.worldsURL.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch worlds: %w", err)
 	}
 
 	return worldsResponse, nil
-}
-
-type APIWorldsResponse struct {
-	Worlds []APIWorld `json:"worlds"`
-}
-
-type APIWorld struct {
-	Group                  string `json:"group"`
-	Name                   string `json:"name"`
-	Category               string `json:"category"`
-	ServerStatus           string `json:"serverStatus"`
-	CanCreateNewCharacters bool   `json:"canCreateNewCharacters"`
-	IsOnline               bool   `json:"isOnline"`
-	IsMaintenance          bool   `json:"isMaintenance"`
-	IsCongested            bool   `json:"isCongested"`
-	IsPreferred            bool   `json:"isPreferred"`
-	IsNew                  bool   `json:"isNew"`
 }
