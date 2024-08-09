@@ -111,8 +111,6 @@ func (s *Server) initializeDiscordSession() error {
 	log := s.logger()
 	log.Print("Initializing Discord session.")
 
-	log.Printf("Token: %#v", s.DiscordToken)
-
 	ds, err := discordgo.New("Bot " + s.DiscordToken)
 	if err != nil {
 		return fmt.Errorf("could not initialize Discord session: %w", err)
