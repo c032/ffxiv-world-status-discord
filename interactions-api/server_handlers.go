@@ -2,9 +2,7 @@ package interactionsapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	logger "github.com/c032/go-logger"
@@ -65,54 +63,43 @@ func (s *Server) handleCommandStatus(data discordgo.ApplicationCommandInteractio
 		}
 	}
 
-	var fields []*discordgo.MessageEmbedField
-
-	if len(maintenanceWorlds) > 0 {
-		var names []string
-
-		for _, w := range maintenanceWorlds {
-			names = append(names, fmt.Sprintf("%s (%s)", w.Name, w.Group))
-		}
-
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   "Maintenance",
-			Value:  strings.Join(names, "\n"),
-			Inline: true,
-		})
-	}
-
-	if len(characterCreationUnavailableWorlds) > 0 {
-		var names []string
-
-		for _, w := range characterCreationUnavailableWorlds {
-			names = append(names, fmt.Sprintf("%s (%s)", w.Name, w.Group))
-		}
-
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:   "Character creation unavailable",
-			Value:  strings.Join(names, "\n"),
-			Inline: true,
-		})
-	}
-
-	var content string
 	var embeds []*discordgo.MessageEmbed
 
-	if len(fields) == 0 {
-		content = "Everything looks good."
-	} else {
-		embed := &discordgo.MessageEmbed{
-			Title:  "FFXIV World Status",
-			Fields: fields,
-		}
+	if len(maintenanceWorlds) > 0 {
+		embed, err := Worlds(maintenanceWorlds).Embed("Maintenance", s.DiscordThumbnailURL)
+		if err != nil {
+			log.Print(err.Error())
 
-		if s.DiscordThumbnailURL != "" {
-			embed.Thumbnail = &discordgo.MessageEmbedThumbnail{
-				URL: s.DiscordThumbnailURL,
-			}
+			s.respondError(w, ErrorResponse{
+				Status: 500,
+				Type:   ErrTypeInternalServerError,
+			})
+
+			return
 		}
 
 		embeds = append(embeds, embed)
+	}
+
+	if len(characterCreationUnavailableWorlds) > 0 {
+		embed, err := Worlds(characterCreationUnavailableWorlds).Embed("Character creation unavailable", s.DiscordThumbnailURL)
+		if err != nil {
+			log.Print(err.Error())
+
+			s.respondError(w, ErrorResponse{
+				Status: 500,
+				Type:   ErrTypeInternalServerError,
+			})
+
+			return
+		}
+
+		embeds = append(embeds, embed)
+	}
+
+	var content string
+	if len(embeds) == 0 {
+		content = "Everything looks good."
 	}
 
 	interactionResponse := &discordgo.InteractionResponse{

@@ -3,7 +3,8 @@ package interactionsapi
 const (
 	errTypePrefix = "https://ffxiv.c032.dev/discord#error/"
 
-	ErrTypeUnknownCommand = errTypePrefix + "unknown-command"
+	ErrTypeInternalServerError = errTypePrefix + "internal-server-error"
+	ErrTypeUnknownCommand      = errTypePrefix + "unknown-command"
 )
 
 // ErrorResponse is an object as defined by RFC 7807.
