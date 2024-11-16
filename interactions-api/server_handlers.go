@@ -29,7 +29,7 @@ func (s *Server) handleCommandPing(data discordgo.ApplicationCommandInteractionD
 	s.respondJSON(200, w, resp)
 }
 
-func (s *Server) handleCommandStatus(data discordgo.ApplicationCommandInteractionData, w http.ResponseWriter) {
+func (s *Server) handleCommandCharacters(data discordgo.ApplicationCommandInteractionData, w http.ResponseWriter) {
 	log := s.logger()
 
 	var (
@@ -126,8 +126,8 @@ func (s *Server) handleInteractionApplicationCommand(interaction *discordgo.Inte
 	switch data.Name {
 	case CmdPing:
 		s.handleCommandPing(data, w)
-	case CmdStatus:
-		s.handleCommandStatus(data, w)
+	case CmdCharacters:
+		s.handleCommandCharacters(data, w)
 	default:
 		log.Print("Command not recognized: %s", data.Name)
 

@@ -5,16 +5,16 @@ import (
 )
 
 const (
-	CmdPing   = "ping"
-	CmdStatus = "ffxiv-status"
+	CmdPing       = "ping"
+	CmdCharacters = "characters"
 )
 
 var Commands = map[string]*discordgo.ApplicationCommand{
 	CmdPing: &discordgo.ApplicationCommand{
 		Description: "Make the bot respond with a pong.",
 	},
-	CmdStatus: &discordgo.ApplicationCommand{
-		Description: "Print status of all worlds.",
+	CmdCharacters: &discordgo.ApplicationCommand{
+		Description: "Print character creation availability status of all worlds.",
 	},
 }
 
